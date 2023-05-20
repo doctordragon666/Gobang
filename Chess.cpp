@@ -29,7 +29,7 @@ void Chess::init()
 	mciSendString(L"play res/start.wav", 0, 0, 0);
 
 	//加载黑白棋
-	loadimage(&chessBlackImg, L"res/black.png",chessSize, chessSize,true);
+	loadimage(&chessBlackImg, L"res/black.png", chessSize, chessSize, true);
 	loadimage(&chessWhiteImg, L"res/white.png", chessSize, chessSize, true);
 
 	//棋盘清零
@@ -43,7 +43,7 @@ void Chess::init()
 		chessMap.push_back(row);
 	}
 
-	playerFlag = true;
+	playerFlag = CHESS_BLACK;
 }//加载图片资源，初始化棋盘数据
 
 bool Chess::clickBoard(int x, int y, ChessPos* pos)
@@ -80,7 +80,7 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 		if (len < offset)
 		{
 			pos->row = row;
-			pos->col = col+1;
+			pos->col = col + 1;
 			if (!chessMap[pos->row][pos->col])
 			{
 				ret = true;
@@ -94,7 +94,7 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 		len = (int)sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
 		if (len < offset)
 		{
-			pos->row = row+1;
+			pos->row = row + 1;
 			pos->col = col;
 			if (!chessMap[pos->row][pos->col])
 			{
@@ -104,8 +104,8 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 		}
 
 		//右下角
-		 x2 = leftTopPosX + chessSize;
-		 y2 = leftTopPosY + chessSize;
+		x2 = leftTopPosX + chessSize;
+		y2 = leftTopPosY + chessSize;
 		len = (int)sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
 		if (len < offset)
 		{
@@ -117,22 +117,21 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 				break;
 			}
 		}
-
 	} while (0);
 	return ret;
 }//判定是否有效点击，保存在参数pos中
 
-void Chess::chessDown(ChessPos* pos, chess_kind_t kind)
+void Chess::chessDown(ChessPos* pos)
 {
 	mciSendString(L"play res/down7.WAV", 0, 0, 0);
 	int x = margin_x + chessSize * pos->col - 0.5 * chessSize;
 	int y = margin_y + chessSize * pos->row - 0.5 * chessSize;
 
-	if (kind == CHESS_WHITE)
+	if (playerFlag == CHESS_WHITE)
 	{
 		putimagePNG(x, y, &chessWhiteImg);
 	}
-	else if(kind == CHESS_BLACK)
+	else
 	{
 		putimagePNG(x, y, &chessBlackImg);
 	}
@@ -153,6 +152,7 @@ void Chess::putimagePNG(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y为Y
 	int dstX = 0;    //在显存里像素的角标
 
 	// 实现透明贴图 公式： Cp=αp*FP+(1-αp)*BP ， 贝叶斯定理来进行点颜色的概率计算
+	float sa_alpha, sa_alpha_invert;
 	for (int iy = 0; iy < picture_height; iy++)
 	{
 		for (int ix = 0; ix < picture_width; ix++)
@@ -176,11 +176,15 @@ void Chess::putimagePNG(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y为Y
 	}
 }
 
+void Chess::reset()
+{
+}
+
 void Chess::updateGameMap(ChessPos* pos)
 {
 	lastPos = *pos;
 	chessMap[pos->row][pos->col] = playerFlag ? CHESS_BLACK : CHESS_WHITE;
-	playerFlag = !playerFlag;
+	playerFlag = (playerFlag == CHESS_WHITE) ? CHESS_BLACK : CHESS_WHITE;
 }
 
 bool Chess::checkWin()
@@ -191,8 +195,8 @@ bool Chess::checkWin()
 	//落子点的水平方向
 	for (int i = 0; i < 5; i++)
 	{
-		if (col-i >= 0 &&
-			col-i+4<gradeSize&&
+		if (col - i >= 0 &&
+			col - i + 4 < gradeSize &&
 			chessMap[row][col - i] == chessMap[row][col - i + 1] &&
 			chessMap[row][col - i] == chessMap[row][col - i + 2] &&
 			chessMap[row][col - i] == chessMap[row][col - i + 3] &&

@@ -1,12 +1,11 @@
 #pragma once
-#include "Chess.h"
+#include "Player.h"
 
-class Man
+class Man : public Player
 {
 public:
-	void init(Chess* chess);
-	void go();
+	void init(Chess* chess)override;
+	void go() override;
 private:
 	Chess* chess;
 };
-

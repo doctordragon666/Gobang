@@ -19,7 +19,7 @@ void AI::go()
 {
 	ChessPos pos = think();
 	Sleep(1000);
-	chess->chessDown(&pos, CHESS_WHITE);
+	chess->chessDown(&pos);
 }
 
 void AI::calculateScore()
@@ -40,7 +40,6 @@ void AI::calculateScore()
 	{
 		for (int col = 0; col < size; col++)
 		{
-			
 			if (chess->getChessData(row, col)) continue;
 
 			for (int y = -1; y <= 0; y++)
@@ -112,12 +111,12 @@ void AI::calculateScore()
 						{
 							scoreMap[row][col] += 30;
 						}
-						else if(emptyNum == 2)
+						else if (emptyNum == 2)
 						{
 							scoreMap[row][col] += 40;
 						}
 					}
-					else if(personNum == 3)
+					else if (personNum == 3)
 					{
 						if (emptyNum == 1)
 						{
@@ -130,9 +129,9 @@ void AI::calculateScore()
 					}
 					else if (personNum == 4)
 					{
-							scoreMap[row][col] += 20000;
+						scoreMap[row][col] += 20000;
 					}
-					
+
 					//假设白棋在该位置落子，会构成什么棋形
 					emptyNum = 0;
 					for (int i = 1; i <= 4; i++)
@@ -182,7 +181,7 @@ void AI::calculateScore()
 							break;
 						}
 					}
-					
+
 					if (aiNum == 0)
 					{
 						scoreMap[row][col] += 5;

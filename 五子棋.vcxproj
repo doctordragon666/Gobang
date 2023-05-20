@@ -131,6 +131,7 @@
     <ClInclude Include="Chess.h" />
     <ClInclude Include="ChessGame.h" />
     <ClInclude Include="Man.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AI.cpp" />

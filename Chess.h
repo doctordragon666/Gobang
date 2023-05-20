@@ -23,7 +23,8 @@ public:
 
 	void init();//加载图片资源，初始化棋盘数据
 	bool clickBoard(int x, int y, ChessPos* pos);//判定是否有效点击，保存在参数pos中
-	void chessDown(ChessPos* pos, chess_kind_t kind);//落子
+	//跟换状态
+	void chessDown(ChessPos* pos);//落子
 	int getGradeSize();//获取棋盘大小
 
 	int getChessData(ChessPos* pos);
@@ -31,11 +32,14 @@ public:
 	bool checkOver();//检查棋盘结束
 
 	void putimagePNG(int x, int y, IMAGE* picture);//自定义贴图接口
+
+	//重置棋盘，并将棋盘的结果保存
+	void reset();
 private:
 	IMAGE chessBlackImg;
 	IMAGE chessWhiteImg;
 
-	int gradeSize;
+	int gradeSize;//棋盘大小
 	int margin_x;
 	int margin_y;
 
@@ -45,7 +49,7 @@ private:
 	vector<vector<int>> chessMap;
 
 	//表示谁下棋
-	bool playerFlag;//true黑子走
+	chess_kind_t playerFlag;//true黑子走
 
 	void updateGameMap(ChessPos* pos);
 
@@ -53,4 +57,3 @@ private:
 
 	ChessPos lastPos;//最近落子点的位置
 };
-

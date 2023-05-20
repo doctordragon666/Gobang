@@ -1,10 +1,10 @@
 #pragma once
-#include "Chess.h"
+#include "Player.h"
 
-class AI
+class AI :public Player
 {
 public:
-	void init(Chess *chess);
+	void init(Chess* chess);
 	void go();
 private:
 	Chess* chess;
@@ -14,4 +14,3 @@ private:
 	void calculateScore();
 	ChessPos think();
 };
-

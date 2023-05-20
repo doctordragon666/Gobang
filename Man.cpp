@@ -19,5 +19,5 @@ void Man::go()
 		}
 	}
 
-	chess->chessDown(&pos, CHESS_BLACK);
+	chess->chessDown(&pos);
 }

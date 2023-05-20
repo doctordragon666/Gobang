@@ -1,20 +1,18 @@
 #pragma once
-#include "Man.h"
 #include "Chess.h"
-#include "AI.h"
+#include "Player.h"
 
 class ChessGame
 {
 public:
-	ChessGame(Man* man, AI* ai, Chess* chess) :m_man(man), m_ai(ai), m_chess(chess) 
+	ChessGame(Player* man, Player* ai, Chess* chess) :m_player1(man), m_player2(ai), m_chess(chess)
 	{
 		man->init(chess);
 		ai->init(chess);
 	}
 	void play();//¿ªÊ¼ÓÎÏ·
 private:
-	Man* m_man;
-	AI* m_ai;
+	Player* m_player1;
+	Player* m_player2;
 	Chess* m_chess;
 };
-
