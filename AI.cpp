@@ -1,4 +1,5 @@
 #include "AI.h"
+#include <time.h>
 
 void AI::init(Chess* chess)
 {
@@ -57,14 +58,12 @@ void AI::calculateScore()
 						int curRow = row + i * y;
 						int curCol = col + i * x;
 
-						if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 1)
 						{
 							personNum++;
 						}
-						else if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						else if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 0)
 						{
 							emptyNum++;
@@ -82,14 +81,12 @@ void AI::calculateScore()
 						int curRow = row - i * y;
 						int curCol = col - i * x;
 
-						if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 1)
 						{
 							personNum++;
 						}
-						else if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						else if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 0)
 						{
 							emptyNum++;
@@ -101,35 +98,21 @@ void AI::calculateScore()
 						}
 					}
 
-					if (personNum == 1)
-					{
+					switch (personNum) {
+					case 1:
 						scoreMap[row][col] += 10;
-					}
-					else if (personNum == 2)
-					{
-						if (emptyNum == 1)
-						{
-							scoreMap[row][col] += 30;
-						}
-						else if (emptyNum == 2)
-						{
-							scoreMap[row][col] += 40;
-						}
-					}
-					else if (personNum == 3)
-					{
-						if (emptyNum == 1)
-						{
-							scoreMap[row][col] = 60;
-						}
-						else if (emptyNum == 2)
-						{
-							scoreMap[row][col] = 5000;
-						}
-					}
-					else if (personNum == 4)
-					{
+						break;
+					case 2:
+						scoreMap[row][col] += emptyNum == 1 ? 30 : (emptyNum == 2 ? 40 : 0);
+						break;
+					case 3:
+						scoreMap[row][col] = emptyNum == 1 ? 60 : (emptyNum == 2 ? 5000 : 0);
+						break;
+					case 4:
 						scoreMap[row][col] += 20000;
+						break;
+					default:
+						break;
 					}
 
 					//假设白棋在该位置落子，会构成什么棋形
@@ -139,14 +122,12 @@ void AI::calculateScore()
 						int curRow = row + i * y;
 						int curCol = col + i * x;
 
-						if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 1)
 						{
 							aiNum++;
 						}
-						else if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						else if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 0)
 						{
 							emptyNum++;
@@ -163,14 +144,12 @@ void AI::calculateScore()
 						int curRow = row - i * y;
 						int curCol = col - i * x;
 
-						if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 1)
 						{
 							aiNum++;
 						}
-						else if (curRow >= 0 && curRow < size
-							&& curCol >= 0 && curCol < size
+						else if (chess->checkChess(curRow, curCol)
 							&& chess->getChessData(curRow, curCol) == 0)
 						{
 							emptyNum++;
@@ -182,39 +161,24 @@ void AI::calculateScore()
 						}
 					}
 
-					if (aiNum == 0)
-					{
+					switch (aiNum) {
+					case 0:
 						scoreMap[row][col] += 5;
-					}
-					else if (aiNum == 1)
-					{
+						break;
+					case 1:
 						scoreMap[row][col] += 10;
-					}
-					else if (aiNum == 2)
-					{
-						if (emptyNum == 1)
-						{
-							scoreMap[row][col] += 25;
-						}
-						else if (emptyNum == 2)
-						{
-							scoreMap[row][col] += 50;
-						}
-					}
-					else if (aiNum == 3)
-					{
-						if (emptyNum == 1)
-						{
-							scoreMap[row][col] += 55;
-						}
-						else if (emptyNum == 2)
-						{
-							scoreMap[row][col] += 10000;
-						}
-					}
-					else if (aiNum == 4)
-					{
+						break;
+					case 2:
+						scoreMap[row][col] += emptyNum == 1 ? 25 : (emptyNum == 2 ? 50 : 0);
+						break;
+					case 3:
+						scoreMap[row][col] += emptyNum == 1 ? 55 : (emptyNum == 2 ? 10000 : 0);
+						break;
+					case 4:
 						scoreMap[row][col] += 30000;
+						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -227,10 +191,10 @@ ChessPos AI::think()
 	calculateScore();
 
 	vector<ChessPos> maxPoints;
+	maxPoints.clear();
 	int maxScore = 0;
-	int size = chess->getGradeSize();
-	size = scoreMap.size();
-	int k = 0;
+	int size = scoreMap.size();
+
 	for (int row = 0; row < size; row++)
 	{
 		for (int col = 0; col < size; col++)
@@ -247,10 +211,11 @@ ChessPos AI::think()
 				{
 					maxPoints.emplace_back(row, col);
 				}
-			}
+			}//在能下的地方,既不能是黑棋也不能是白棋
 		}
 	}
 
+	srand((unsigned int)time(NULL));
 	int index = rand() % maxPoints.size();
 	return maxPoints[index];
 }

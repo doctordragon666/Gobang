@@ -7,7 +7,7 @@
 const int gradeSize = 13;
 const int marginX = 44;
 const int marginY = 43;
-const float chessSize = 67.3;
+const double chessSize = 67.3;
 
 int main()
 {

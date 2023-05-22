@@ -2,14 +2,15 @@
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 #include <conio.h>
+#include <tgmath.h>
 
-Chess::Chess(int gradeSize, int marginX, int marginY, float chessSize)
+Chess::Chess(int gradeSize, int marginX, int marginY, double chessSize)
 {
 	this->gradeSize = gradeSize;
 	this->margin_x = marginX;
 	this->margin_y = marginY;
 	this->chessSize = chessSize;
-	playerFlag = CHESS_BLACK;
+	playerFlag = chess_kind_t::CHESS_BLACK;
 
 	for (int i = 0; i < gradeSize; i++)
 	{
@@ -24,7 +25,8 @@ Chess::Chess(int gradeSize, int marginX, int marginY, float chessSize)
 
 void Chess::init()
 {
-	initgraph(897, 895, EW_SHOWCONSOLE);//按照图片大小设置
+	//initgraph(897, 895, EW_SHOWCONSOLE);//按照图片大小设置
+	initgraph(897, 895);//按照图片大小设置
 	loadimage(0, L"res/棋盘2.jpg");
 	mciSendString(L"play res/start.wav", 0, 0, 0);
 
@@ -43,7 +45,7 @@ void Chess::init()
 		chessMap.push_back(row);
 	}
 
-	playerFlag = CHESS_BLACK;
+	playerFlag = chess_kind_t::CHESS_BLACK;
 }//加载图片资源，初始化棋盘数据
 
 bool Chess::clickBoard(int x, int y, ChessPos* pos)
@@ -60,8 +62,7 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 	do
 	{
 		//左上角
-		len = (int)sqrt((x - leftTopPosX) * (x - leftTopPosX) + (y - leftTopPosY) * (y - leftTopPosY));
-
+		len = hypot(x - leftTopPosX, y - leftTopPosY);
 		if (len < offset)
 		{
 			pos->row = row;
@@ -74,9 +75,7 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 		}
 
 		//右上角
-		int x2 = leftTopPosX + chessSize;
-		int y2 = leftTopPosY;
-		len = (int)sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+		len = (int)hypot(x - leftTopPosX - chessSize, y - leftTopPosY);
 		if (len < offset)
 		{
 			pos->row = row;
@@ -89,9 +88,7 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 		}
 
 		//左下角
-		x2 = leftTopPosX;
-		y2 = leftTopPosY + chessSize;
-		len = (int)sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+		len = (int)hypot(x - leftTopPosX, y - leftTopPosY - chessSize);
 		if (len < offset)
 		{
 			pos->row = row + 1;
@@ -104,9 +101,7 @@ bool Chess::clickBoard(int x, int y, ChessPos* pos)
 		}
 
 		//右下角
-		x2 = leftTopPosX + chessSize;
-		y2 = leftTopPosY + chessSize;
-		len = (int)sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+		len = (int)hypot(x - leftTopPosX - chessSize, y - leftTopPosY - chessSize);
 		if (len < offset)
 		{
 			pos->row = row + 1;
@@ -127,13 +122,16 @@ void Chess::chessDown(ChessPos* pos)
 	int x = margin_x + chessSize * pos->col - 0.5 * chessSize;
 	int y = margin_y + chessSize * pos->row - 0.5 * chessSize;
 
-	if (playerFlag == CHESS_WHITE)
+	if (playerFlag == chess_kind_t::CHESS_WHITE)
 	{
 		putimagePNG(x, y, &chessWhiteImg);
 	}
-	else
+	else if (playerFlag == chess_kind_t::CHESS_BLACK)
 	{
 		putimagePNG(x, y, &chessBlackImg);
+	}
+	else
+	{
 	}
 
 	updateGameMap(pos);
@@ -152,7 +150,6 @@ void Chess::putimagePNG(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y为Y
 	int dstX = 0;    //在显存里像素的角标
 
 	// 实现透明贴图 公式： Cp=αp*FP+(1-αp)*BP ， 贝叶斯定理来进行点颜色的概率计算
-	float sa_alpha, sa_alpha_invert;
 	for (int iy = 0; iy < picture_height; iy++)
 	{
 		for (int ix = 0; ix < picture_width; ix++)
@@ -178,13 +175,30 @@ void Chess::putimagePNG(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y为Y
 
 void Chess::reset()
 {
+	FILE* file;
+	fopen_s(&file, "result.txt", "w");
+
+	if (file == nullptr)
+	{
+		return;
+	}
+
+	for (auto line : chessMap)
+	{
+		for (auto cell : line)
+		{
+			fwrite(&cell, sizeof(int), 1, file);
+		}
+	}
+
+	fclose(file);
 }
 
 void Chess::updateGameMap(ChessPos* pos)
 {
 	lastPos = *pos;
-	chessMap[pos->row][pos->col] = playerFlag ? CHESS_BLACK : CHESS_WHITE;
-	playerFlag = (playerFlag == CHESS_WHITE) ? CHESS_BLACK : CHESS_WHITE;
+	chessMap[pos->row][pos->col] = (int)playerFlag;
+	playerFlag = (playerFlag == chess_kind_t::CHESS_WHITE) ? chess_kind_t::CHESS_BLACK : chess_kind_t::CHESS_WHITE;
 }
 
 bool Chess::checkWin()
@@ -196,13 +210,11 @@ bool Chess::checkWin()
 	for (int i = 0; i < 5; i++)
 	{
 		if (col - i >= 0 &&
-			col - i + 4 < gradeSize &&
-			chessMap[row][col - i] == chessMap[row][col - i + 1] &&
-			chessMap[row][col - i] == chessMap[row][col - i + 2] &&
-			chessMap[row][col - i] == chessMap[row][col - i + 3] &&
-			chessMap[row][col - i] == chessMap[row][col - i + 4])
+			col - i + 4 < gradeSize)
 		{
-			return true;
+			vector<int> line(chessMap[row].begin() + col - i, chessMap[row].begin() + col - i + 5);
+			auto iter = adjacent_find(line.begin(), line.end(), std::not_equal_to<int>());
+			if (iter == line.end())return true;
 		}
 	}
 
@@ -271,22 +283,32 @@ bool Chess::checkOver()
 	if (checkWin())
 	{
 		Sleep(1500);
-		if (!playerFlag)
+		if (playerFlag == chess_kind_t::CHESS_WHITE)
 		{
-			//printf("Man is win");
 			mciSendString(L"play res/不错.mp3", 0, 0, 0);
 			loadimage(0, L"res/胜利.jpg");
 		}
 		else
 		{
-			//printf("AI is win");
 			mciSendString(L"play res/失败.mp3", 0, 0, 0);
 			loadimage(0, L"res/失败.jpg");
 		}
 
-		_getch();
+		//_getch();
 		return true;
 	}
 
 	return false;
-}//检查棋盘结束
+}
+bool Chess::checkChess(ChessPos* pos)
+{
+	return pos->row >= 0 && pos->row < gradeSize
+		&& pos->col >= 0 && pos->col < gradeSize;
+}
+
+bool Chess::checkChess(int row, int col)
+{
+	return row >= 0 && row < gradeSize
+		&& col >= 0 && col < gradeSize;
+}
+//检查棋盘结束
