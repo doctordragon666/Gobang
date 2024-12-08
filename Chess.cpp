@@ -175,23 +175,16 @@ void Chess::putimagePNG(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y为Y
 
 void Chess::reset()
 {
-	FILE* file;
-	fopen_s(&file, "result.txt", "w");
-
-	if (file == nullptr)
+	for (auto chessLine : chessMap)
 	{
-		return;
-	}
-
-	for (auto line : chessMap)
-	{
-		for (auto cell : line)
+		for (auto chess : chessLine)
 		{
-			fwrite(&cell, sizeof(int), 1, file);
+			chess = (int)chess_kind_t::CHESS_NONE;
 		}
 	}
-
-	fclose(file);
+	Sleep(3000);
+	closegraph();
+	init();
 }
 
 void Chess::updateGameMap(ChessPos* pos)

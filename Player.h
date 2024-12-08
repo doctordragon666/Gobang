@@ -3,6 +3,6 @@
 class Player
 {
 public:
-	virtual void init(Chess* chess) {};
+	virtual void init(Chess& chess) {};
 	virtual void go() {};
 };

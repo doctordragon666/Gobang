@@ -15,7 +15,7 @@ int main()
 	Man man;
 	AI ai;
 
-	shared_ptr<ChessGame> game(new ChessGame(&man, &ai, &chess));
+	shared_ptr<ChessGame> game(new ChessGame(&man, &ai, chess));
 	game->play();
 
 	return 0;
