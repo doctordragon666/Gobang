@@ -1,69 +1,69 @@
-#pragma once
-#include <graphics.h>
-#include <vector>
-#include <algorithm>
-#include <numeric>
-#include <functional>
-using namespace std;
-
-struct ChessPos
-{
-	int row;
-	int col;
-
-	ChessPos(int r = 0, int c = 0) :row(r), col(c) {}
-};
-
-enum class chess_kind_t {
-	CHESS_WHITE = -1,
-	CHESS_BLACK = 1,
-	CHESS_NONE = 0
-};
-
-class Chess
-{
-public:
-	Chess(int gradeSize, int marginX, int marginY, double chessSize);
-
-	void init();//¼ÓÔØÍ¼Æ¬×ÊÔ´£¬³õÊ¼»¯ÆåÅÌÊı¾İ
-	bool clickBoard(int x, int y, ChessPos* pos);//ÅĞ¶¨ÊÇ·ñÓĞĞ§µã»÷£¬±£´æÔÚ²ÎÊıposÖĞ
-	//¸ú»»×´Ì¬
-	void chessDown(ChessPos* pos);//Âä×Ó
-	int getGradeSize();//»ñÈ¡ÆåÅÌ´óĞ¡
-
-	//»ñÈ¡ÆåÅÌÊı¾İ
-	int getChessData(ChessPos* pos);
-	int getChessData(int row, int col);
-
-	bool checkOver();//¼ì²éÆåÅÌ½áÊø
-
-	//¼ì²éÕâ¸öÎ»ÖÃÊÇ·ñÔÚÆåÅÌÉÏ
-	bool checkChess(ChessPos* pos);
-	bool checkChess(int row, int col);
-
-	void putimagePNG(int x, int y, IMAGE* picture);//×Ô¶¨ÒåÌùÍ¼½Ó¿Ú
-
-	//ÖØÖÃÆåÅÌ£¬²¢½«ÆåÅÌµÄ½á¹û±£´æ
-	void reset();
-private:
-	IMAGE chessBlackImg;
-	IMAGE chessWhiteImg;
-
-	int gradeSize;//ÆåÅÌ´óĞ¡
-	int margin_x;
-	int margin_y;
-
-	double chessSize;//Æå×Ó´óĞ¡
-
-	//´æ´¢ÆåÅÌÆå×Ó·Ö²¼Êı¾İ
-	vector<vector<int>> chessMap;
-
-	//±íÊ¾Ë­ÏÂÆå
-	chess_kind_t playerFlag;//trueºÚ×Ó×ß
-
-	void updateGameMap(ChessPos* pos);
-
-	bool checkWin();//¼ì²éÊ¤ÀûÌõ¼ş
-
-	ChessPos lastPos;//×î½üÂä×ÓµãµÄÎ»ÖÃ
-};
+//#pragma once
+//#include <graphics.h>
+//#include <vector>
+//#include <algorithm>
+//#include <numeric>
+//#include <functional>
+//using namespace std;
+//
+//struct ChessPos
+//{
+//	int row;
+//	int col;
+//
+//	ChessPos(int r = 0, int c = 0) :row(r), col(c) {}
+//};
+//
+//enum class chess_kind_t {
+//	CHESS_WHITE = -1,
+//	CHESS_BLACK = 1,
+//	CHESS_NONE = 0
+//};
+//
+//class Chess
+//{
+//public:
+//	Chess(int gradeSize, int marginX, int marginY, double chessSize);
+//
+//	void init();//åŠ è½½å›¾ç‰‡èµ„æºï¼Œåˆå§‹åŒ–æ£‹ç›˜æ•°æ®
+//	bool clickBoard(int x, int y, ChessPos* pos);//åˆ¤å®šæ˜¯å¦æœ‰æ•ˆç‚¹å‡»ï¼Œä¿å­˜åœ¨å‚æ•°posä¸­
+//	//è·Ÿæ¢çŠ¶æ€
+//	void chessDown(ChessPos* pos);//è½å­
+//	int getGradeSize();//è·å–æ£‹ç›˜å¤§å°
+//
+//	//è·å–æ£‹ç›˜æ•°æ®
+//	int getChessData(ChessPos* pos);
+//	int getChessData(int row, int col);
+//
+//	bool checkOver();//æ£€æŸ¥æ£‹ç›˜ç»“æŸ
+//
+//	//æ£€æŸ¥è¿™ä¸ªä½ç½®æ˜¯å¦åœ¨æ£‹ç›˜ä¸Š
+//	bool checkChess(ChessPos* pos);
+//	bool checkChess(int row, int col);
+//
+//	void putimagePNG(int x, int y, IMAGE* picture);//è‡ªå®šä¹‰è´´å›¾æ¥å£
+//
+//	//é‡ç½®æ£‹ç›˜ï¼Œå¹¶å°†æ£‹ç›˜çš„ç»“æœä¿å­˜
+//	void reset();
+//private:
+//	IMAGE chessBlackImg;
+//	IMAGE chessWhiteImg;
+//
+//	int gradeSize;//æ£‹ç›˜å¤§å°
+//	int margin_x;
+//	int margin_y;
+//
+//	double chessSize;//æ£‹å­å¤§å°
+//
+//	//å­˜å‚¨æ£‹ç›˜æ£‹å­åˆ†å¸ƒæ•°æ®
+//	vector<vector<int>> chessMap;
+//
+//	//è¡¨ç¤ºè°ä¸‹æ£‹
+//	chess_kind_t playerFlag;//trueé»‘å­èµ°
+//
+//	void updateGameMap(ChessPos* pos);
+//
+//	bool checkWin();//æ£€æŸ¥èƒœåˆ©æ¡ä»¶
+//
+//	ChessPos lastPos;//æœ€è¿‘è½å­ç‚¹çš„ä½ç½®
+//};

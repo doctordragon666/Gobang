@@ -1,307 +1,255 @@
-#include "Chess.h"
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
-#include <conio.h>
-#include <tgmath.h>
-
-Chess::Chess(int gradeSize, int marginX, int marginY, double chessSize)
-{
-	this->gradeSize = gradeSize;
-	this->margin_x = marginX;
-	this->margin_y = marginY;
-	this->chessSize = chessSize;
-	playerFlag = chess_kind_t::CHESS_BLACK;
-
-	for (int i = 0; i < gradeSize; i++)
-	{
-		vector<int> row;
-		for (int j = 0; j < gradeSize; j++)
-		{
-			row.push_back(0);
-		}
-		chessMap.push_back(row);
-	}
-}
-
-void Chess::init()
-{
-	//initgraph(897, 895, EW_SHOWCONSOLE);//°´ÕÕÍ¼Æ¬´óĞ¡ÉèÖÃ
-	initgraph(897, 895);//°´ÕÕÍ¼Æ¬´óĞ¡ÉèÖÃ
-	loadimage(0, L"res/ÆåÅÌ2.jpg");
-	mciSendString(L"play res/start.wav", 0, 0, 0);
-
-	//¼ÓÔØºÚ°×Æå
-	loadimage(&chessBlackImg, L"res/black.png", chessSize, chessSize, true);
-	loadimage(&chessWhiteImg, L"res/white.png", chessSize, chessSize, true);
-
-	//ÆåÅÌÇåÁã
-	for (int i = 0; i < gradeSize; i++)
-	{
-		vector<int> row;
-		for (int j = 0; j < gradeSize; j++)
-		{
-			row.push_back(0);
-		}
-		chessMap.push_back(row);
-	}
-
-	playerFlag = chess_kind_t::CHESS_BLACK;
-}//¼ÓÔØÍ¼Æ¬×ÊÔ´£¬³õÊ¼»¯ÆåÅÌÊı¾İ
-
-bool Chess::clickBoard(int x, int y, ChessPos* pos)
-{
-	int col = (x - margin_x) / chessSize;
-	int row = (y - margin_y) / chessSize;
-	int leftTopPosX = margin_x + chessSize * col;
-	int leftTopPosY = margin_x + chessSize * row;
-
-	int offset = chessSize * 0.4;
-	bool ret = false;
-
-	int len;
-	do
-	{
-		//×óÉÏ½Ç
-		len = hypot(x - leftTopPosX, y - leftTopPosY);
-		if (len < offset)
-		{
-			pos->row = row;
-			pos->col = col;
-			if (!chessMap[pos->row][pos->col])
-			{
-				ret = true;
-				break;
-			}
-		}
-
-		//ÓÒÉÏ½Ç
-		len = (int)hypot(x - leftTopPosX - chessSize, y - leftTopPosY);
-		if (len < offset)
-		{
-			pos->row = row;
-			pos->col = col + 1;
-			if (!chessMap[pos->row][pos->col])
-			{
-				ret = true;
-				break;
-			}
-		}
-
-		//×óÏÂ½Ç
-		len = (int)hypot(x - leftTopPosX, y - leftTopPosY - chessSize);
-		if (len < offset)
-		{
-			pos->row = row + 1;
-			pos->col = col;
-			if (!chessMap[pos->row][pos->col])
-			{
-				ret = true;
-				break;
-			}
-		}
-
-		//ÓÒÏÂ½Ç
-		len = (int)hypot(x - leftTopPosX - chessSize, y - leftTopPosY - chessSize);
-		if (len < offset)
-		{
-			pos->row = row + 1;
-			pos->col = col + 1;
-			if (!chessMap[pos->row][pos->col])
-			{
-				ret = true;
-				break;
-			}
-		}
-	} while (0);
-	return ret;
-}//ÅĞ¶¨ÊÇ·ñÓĞĞ§µã»÷£¬±£´æÔÚ²ÎÊıposÖĞ
-
-void Chess::chessDown(ChessPos* pos)
-{
-	mciSendString(L"play res/down7.WAV", 0, 0, 0);
-	int x = margin_x + chessSize * pos->col - 0.5 * chessSize;
-	int y = margin_y + chessSize * pos->row - 0.5 * chessSize;
-
-	if (playerFlag == chess_kind_t::CHESS_WHITE)
-	{
-		putimagePNG(x, y, &chessWhiteImg);
-	}
-	else if (playerFlag == chess_kind_t::CHESS_BLACK)
-	{
-		putimagePNG(x, y, &chessBlackImg);
-	}
-	else
-	{
-	}
-
-	updateGameMap(pos);
-}//Âä×Ó
-
-void Chess::putimagePNG(int x, int y, IMAGE* picture) //xÎªÔØÈëÍ¼Æ¬µÄX×ø±ê£¬yÎªY×ø±ê
-{
-	// ±äÁ¿³õÊ¼»¯
-	DWORD* dst = GetImageBuffer();    // GetImageBuffer()º¯Êı£¬ÓÃÓÚ»ñÈ¡»æÍ¼Éè±¸µÄÏÔ´æÖ¸Õë£¬EASYX×Ô´ø
-	DWORD* draw = GetImageBuffer();
-	DWORD* src = GetImageBuffer(picture); //»ñÈ¡pictureµÄÏÔ´æÖ¸Õë
-	int picture_width = picture->getwidth(); //»ñÈ¡pictureµÄ¿í¶È£¬EASYX×Ô´ø
-	int picture_height = picture->getheight(); //»ñÈ¡pictureµÄ¸ß¶È£¬EASYX×Ô´ø
-	int graphWidth = getwidth();       //»ñÈ¡»æÍ¼ÇøµÄ¿í¶È£¬EASYX×Ô´ø
-	int graphHeight = getheight();     //»ñÈ¡»æÍ¼ÇøµÄ¸ß¶È£¬EASYX×Ô´ø
-	int dstX = 0;    //ÔÚÏÔ´æÀïÏñËØµÄ½Ç±ê
-
-	// ÊµÏÖÍ¸Ã÷ÌùÍ¼ ¹«Ê½£º Cp=¦Áp*FP+(1-¦Áp)*BP £¬ ±´Ò¶Ë¹¶¨ÀíÀ´½øĞĞµãÑÕÉ«µÄ¸ÅÂÊ¼ÆËã
-	for (int iy = 0; iy < picture_height; iy++)
-	{
-		for (int ix = 0; ix < picture_width; ix++)
-		{
-			int srcX = ix + iy * picture_width; //ÔÚÏÔ´æÀïÏñËØµÄ½Ç±ê
-			int sa = ((src[srcX] & 0xff000000) >> 24); //0xAArrggbb;AAÊÇÍ¸Ã÷¶È
-			int sr = ((src[srcX] & 0xff0000) >> 16); //»ñÈ¡RGBÀïµÄR
-			int sg = ((src[srcX] & 0xff00) >> 8);   //G
-			int sb = src[srcX] & 0xff;              //B
-			if (ix >= 0 && ix <= graphWidth && iy >= 0 && iy <= graphHeight && dstX <= graphWidth * graphHeight)
-			{
-				dstX = (ix + x) + (iy + y) * graphWidth; //ÔÚÏÔ´æÀïÏñËØµÄ½Ç±ê
-				int dr = ((dst[dstX] & 0xff0000) >> 16);
-				int dg = ((dst[dstX] & 0xff00) >> 8);
-				int db = dst[dstX] & 0xff;
-				draw[dstX] = ((sr * sa / 255 + dr * (255 - sa) / 255) << 16)  //¹«Ê½£º Cp=¦Áp*FP+(1-¦Áp)*BP  £» ¦Áp=sa/255 , FP=sr , BP=dr
-					| ((sg * sa / 255 + dg * (255 - sa) / 255) << 8)         //¦Áp=sa/255 , FP=sg , BP=dg
-					| (sb * sa / 255 + db * (255 - sa) / 255);              //¦Áp=sa/255 , FP=sb , BP=db
-			}
-		}
-	}
-}
-
-void Chess::reset()
-{
-	for (auto chessLine : chessMap)
-	{
-		for (auto chess : chessLine)
-		{
-			chess = (int)chess_kind_t::CHESS_NONE;
-		}
-	}
-	Sleep(3000);
-	closegraph();
-	init();
-}
-
-void Chess::updateGameMap(ChessPos* pos)
-{
-	lastPos = *pos;
-	chessMap[pos->row][pos->col] = (int)playerFlag;
-	playerFlag = (playerFlag == chess_kind_t::CHESS_WHITE) ? chess_kind_t::CHESS_BLACK : chess_kind_t::CHESS_WHITE;
-}
-
-bool Chess::checkWin()
-{
-	int row = lastPos.row;
-	int col = lastPos.col;
-
-	//Âä×ÓµãµÄË®Æ½·½Ïò
-	for (int i = 0; i < 5; i++)
-	{
-		if (col - i >= 0 &&
-			col - i + 4 < gradeSize)
-		{
-			vector<int> line(chessMap[row].begin() + col - i, chessMap[row].begin() + col - i + 5);
-			auto iter = adjacent_find(line.begin(), line.end(), std::not_equal_to<int>());
-			if (iter == line.end())return true;
-		}
-	}
-
-	//´¹Ö±·½Ïò
-	for (int i = 0; i < 5; i++)
-	{
-		if (row - i >= 0 &&
-			row - i + 4 < gradeSize &&
-			chessMap[row - i][col] == chessMap[row - i + 1][col] &&
-			chessMap[row - i][col] == chessMap[row - i + 2][col] &&
-			chessMap[row - i][col] == chessMap[row - i + 3][col] &&
-			chessMap[row - i][col] == chessMap[row - i + 4][col])
-		{
-			return true;
-		}
-	}
-
-	//"/"·½Ïò
-	for (int i = 0; i < 5; i++)
-	{
-		if (row + i - 4 >= 0 && row + i < gradeSize &&
-			col - i >= 0 && col - i + 4 < gradeSize &&
-			chessMap[row + i][col - i] == chessMap[row + i - 1][col - i + 1] &&
-			chessMap[row + i][col - i] == chessMap[row + i - 2][col - i + 2] &&
-			chessMap[row + i][col - i] == chessMap[row + i - 3][col - i + 3] &&
-			chessMap[row + i][col - i] == chessMap[row + i - 4][col - i + 4])
-		{
-			return true;
-		}
-	}
-
-	//¡±\¡°·½Ïò
-	for (int i = 0; i < 5; i++)
-	{
-		if (row - i >= 0 && row - i + 4 < gradeSize &&
-			col - i >= 0 && col - i + 4 < gradeSize &&
-			chessMap[row - i][col - i] == chessMap[row - i + 1][col - i + 1] &&
-			chessMap[row - i][col - i] == chessMap[row - i + 2][col - i + 2] &&
-			chessMap[row - i][col - i] == chessMap[row - i + 3][col - i + 3] &&
-			chessMap[row - i][col - i] == chessMap[row - i + 4][col - i + 4])
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-int Chess::getGradeSize()
-{
-	return this->gradeSize;
-}//»ñÈ¡ÆåÅÌ´óĞ¡
-
-int Chess::getChessData(ChessPos* pos)
-{
-	return chessMap[pos->row][pos->col];
-}
-
-int Chess::getChessData(int row, int col)
-{
-	return chessMap[row][col];
-}
-
-bool Chess::checkOver()
-{
-	if (checkWin())
-	{
-		Sleep(1500);
-		if (playerFlag == chess_kind_t::CHESS_WHITE)
-		{
-			mciSendString(L"play res/²»´í.mp3", 0, 0, 0);
-			loadimage(0, L"res/Ê¤Àû.jpg");
-		}
-		else
-		{
-			mciSendString(L"play res/Ê§°Ü.mp3", 0, 0, 0);
-			loadimage(0, L"res/Ê§°Ü.jpg");
-		}
-
-		//_getch();
-		return true;
-	}
-
-	return false;
-}
-bool Chess::checkChess(ChessPos* pos)
-{
-	return pos->row >= 0 && pos->row < gradeSize
-		&& pos->col >= 0 && pos->col < gradeSize;
-}
-
-bool Chess::checkChess(int row, int col)
-{
-	return row >= 0 && row < gradeSize
-		&& col >= 0 && col < gradeSize;
-}
-//¼ì²éÆåÅÌ½áÊø
+//#include "Chess.h"
+//#include <mmsystem.h>
+//#pragma comment(lib, "winmm.lib")
+//#include <conio.h>
+//#include <tgmath.h>
+//
+//Chess::Chess(int gradeSize, int marginX, int marginY, double chessSize)
+//{
+//	this->gradeSize = gradeSize;
+//	this->margin_x = marginX;
+//	this->margin_y = marginY;
+//	this->chessSize = chessSize;
+//	playerFlag = chess_kind_t::CHESS_BLACK;
+//
+//	for (int i = 0; i < gradeSize; i++)
+//	{
+//		vector<int> row;
+//		for (int j = 0; j < gradeSize; j++)
+//		{
+//			row.push_back(0);
+//		}
+//		chessMap.push_back(row);
+//	}
+//}
+//
+//void Chess::init()
+//{
+//	initgraph(897, 895);//æŒ‰ç…§å›¾ç‰‡å¤§å°è®¾ç½®
+//	loadimage(0, L"res/æ£‹ç›˜2.jpg");
+//	mciSendString(L"play res/start.wav", 0, 0, 0);
+//
+//
+//	//æ£‹ç›˜æ¸…é›¶
+//	for (int i = 0; i < gradeSize; i++)
+//	{
+//		vector<int> row;
+//		for (int j = 0; j < gradeSize; j++)
+//		{
+//			row.push_back(0);
+//		}
+//		chessMap.push_back(row);
+//	}
+//
+//	playerFlag = chess_kind_t::CHESS_BLACK;
+//}//åŠ è½½å›¾ç‰‡èµ„æºï¼Œåˆå§‹åŒ–æ£‹ç›˜æ•°æ®
+//
+//bool Chess::clickBoard(int x, int y, ChessPos* pos)
+//{
+//	int col = (x - margin_x) / chessSize;
+//	int row = (y - margin_y) / chessSize;
+//	int leftTopPosX = margin_x + chessSize * col;
+//	int leftTopPosY = margin_x + chessSize * row;
+//
+//	int offset = chessSize * 0.4;
+//	bool ret = false;
+//
+//	int len;
+//	do
+//	{
+//		//å·¦ä¸Šè§’
+//		len = hypot(x - leftTopPosX, y - leftTopPosY);
+//		if (len < offset)
+//		{
+//			pos->row = row;
+//			pos->col = col;
+//			if (!chessMap[pos->row][pos->col])
+//			{
+//				ret = true;
+//				break;
+//			}
+//		}
+//
+//		//å³ä¸Šè§’
+//		len = (int)hypot(x - leftTopPosX - chessSize, y - leftTopPosY);
+//		if (len < offset)
+//		{
+//			pos->row = row;
+//			pos->col = col + 1;
+//			if (!chessMap[pos->row][pos->col])
+//			{
+//				ret = true;
+//				break;
+//			}
+//		}
+//
+//		//å·¦ä¸‹è§’
+//		len = (int)hypot(x - leftTopPosX, y - leftTopPosY - chessSize);
+//		if (len < offset)
+//		{
+//			pos->row = row + 1;
+//			pos->col = col;
+//			if (!chessMap[pos->row][pos->col])
+//			{
+//				ret = true;
+//				break;
+//			}
+//		}
+//
+//		//å³ä¸‹è§’
+//		len = (int)hypot(x - leftTopPosX - chessSize, y - leftTopPosY - chessSize);
+//		if (len < offset)
+//		{
+//			pos->row = row + 1;
+//			pos->col = col + 1;
+//			if (!chessMap[pos->row][pos->col])
+//			{
+//				ret = true;
+//				break;
+//			}
+//		}
+//	} while (0);
+//	return ret;
+//}//åˆ¤å®šæ˜¯å¦æœ‰æ•ˆç‚¹å‡»ï¼Œä¿å­˜åœ¨å‚æ•°posä¸­
+//
+//void Chess::chessDown(ChessPos* pos)
+//{
+//	mciSendString(L"play res/down7.WAV", 0, 0, 0);
+//	int x = margin_x + chessSize * pos->col - 0.5 * chessSize;
+//	int y = margin_y + chessSize * pos->row - 0.5 * chessSize;
+//
+//	if (playerFlag == chess_kind_t::CHESS_WHITE)
+//	{
+//		putimagePNG(x, y, &chessWhiteImg);
+//	}
+//	else if (playerFlag == chess_kind_t::CHESS_BLACK)
+//	{
+//		putimagePNG(x, y, &chessBlackImg);
+//	}
+//	else
+//	{
+//	}
+//
+//	updateGameMap(pos);
+//}//è½å­
+//
+//
+//
+//void Chess::updateGameMap(ChessPos* pos)
+//{
+//	lastPos = *pos;
+//	chessMap[pos->row][pos->col] = (int)playerFlag;
+//	playerFlag = (playerFlag == chess_kind_t::CHESS_WHITE) ? chess_kind_t::CHESS_BLACK : chess_kind_t::CHESS_WHITE;
+//}
+//
+//bool Chess::checkWin()
+//{
+//	int row = lastPos.row;
+//	int col = lastPos.col;
+//
+//	//è½å­ç‚¹çš„æ°´å¹³æ–¹å‘
+//	for (int i = 0; i < 5; i++)
+//	{
+//		if (col - i >= 0 &&
+//			col - i + 4 < gradeSize)
+//		{
+//			vector<int> line(chessMap[row].begin() + col - i, chessMap[row].begin() + col - i + 5);
+//			auto iter = adjacent_find(line.begin(), line.end(), std::not_equal_to<int>());
+//			if (iter == line.end())return true;
+//		}
+//	}
+//
+//	//å‚ç›´æ–¹å‘
+//	for (int i = 0; i < 5; i++)
+//	{
+//		if (row - i >= 0 &&
+//			row - i + 4 < gradeSize &&
+//			chessMap[row - i][col] == chessMap[row - i + 1][col] &&
+//			chessMap[row - i][col] == chessMap[row - i + 2][col] &&
+//			chessMap[row - i][col] == chessMap[row - i + 3][col] &&
+//			chessMap[row - i][col] == chessMap[row - i + 4][col])
+//		{
+//			return true;
+//		}
+//	}
+//
+//	//"/"æ–¹å‘
+//	for (int i = 0; i < 5; i++)
+//	{
+//		if (row + i - 4 >= 0 && row + i < gradeSize &&
+//			col - i >= 0 && col - i + 4 < gradeSize &&
+//			chessMap[row + i][col - i] == chessMap[row + i - 1][col - i + 1] &&
+//			chessMap[row + i][col - i] == chessMap[row + i - 2][col - i + 2] &&
+//			chessMap[row + i][col - i] == chessMap[row + i - 3][col - i + 3] &&
+//			chessMap[row + i][col - i] == chessMap[row + i - 4][col - i + 4])
+//		{
+//			return true;
+//		}
+//	}
+//
+//	//â€\â€œæ–¹å‘
+//	for (int i = 0; i < 5; i++)
+//	{
+//		if (row - i >= 0 && row - i + 4 < gradeSize &&
+//			col - i >= 0 && col - i + 4 < gradeSize &&
+//			chessMap[row - i][col - i] == chessMap[row - i + 1][col - i + 1] &&
+//			chessMap[row - i][col - i] == chessMap[row - i + 2][col - i + 2] &&
+//			chessMap[row - i][col - i] == chessMap[row - i + 3][col - i + 3] &&
+//			chessMap[row - i][col - i] == chessMap[row - i + 4][col - i + 4])
+//		{
+//			return true;
+//		}
+//	}
+//
+//	return false;
+//}
+//
+//int Chess::getGradeSize()
+//{
+//	return this->gradeSize;
+//}//è·å–æ£‹ç›˜å¤§å°
+//
+//int Chess::getChessData(ChessPos* pos)
+//{
+//	return chessMap[pos->row][pos->col];
+//}
+//
+//int Chess::getChessData(int row, int col)
+//{
+//	return chessMap[row][col];
+//}
+//
+//bool Chess::checkOver()
+//{
+//	if (checkWin())
+//	{
+//		Sleep(1500);
+//		if (playerFlag == chess_kind_t::CHESS_WHITE)
+//		{
+//			mciSendString(L"play res/ä¸é”™.mp3", 0, 0, 0);
+//			loadimage(0, L"res/èƒœåˆ©.jpg");
+//		}
+//		else
+//		{
+//			mciSendString(L"play res/å¤±è´¥.mp3", 0, 0, 0);
+//			loadimage(0, L"res/å¤±è´¥.jpg");
+//		}
+//
+//		//_getch();
+//		return true;
+//	}
+//
+//	return false;
+//}
+//bool Chess::checkChess(ChessPos* pos)
+//{
+//	return pos->row >= 0 && pos->row < gradeSize
+//		&& pos->col >= 0 && pos->col < gradeSize;
+//}
+//
+//bool Chess::checkChess(int row, int col)
+//{
+//	return row >= 0 && row < gradeSize
+//		&& col >= 0 && col < gradeSize;
+//}
+////æ£€æŸ¥æ£‹ç›˜ç»“æŸ

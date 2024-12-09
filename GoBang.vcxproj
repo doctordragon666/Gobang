@@ -128,16 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AI.h" />
     <ClInclude Include="Chess.h" />
-    <ClInclude Include="ChessGame.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="Go.h" />
     <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AI.cpp" />
     <ClCompile Include="Chess.cpp" />
-    <ClCompile Include="ChessGame.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
