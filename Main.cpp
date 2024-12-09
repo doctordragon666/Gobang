@@ -1,22 +1,66 @@
-#include <stdio.h>
-#include "ChessGame.h"
-#include "AI.h"
-#include "Man.h"
-#include <memory>
+﻿#include "global.h"
+#include "Go.h"
+#include "Player.h"
 
-const int gradeSize = 13;
-const int marginX = 44;
-const int marginY = 43;
-const double chessSize = 67.3;
+IMAGE whiteChessImg;
+IMAGE blackChessImg;
+IMAGE boardImg;
+
+ExMessage ex;
+//IMAGE* backgroundImg;
+//IMAGE* winImg;
+//IMAGE* loseImg;
+
+static void initResource()
+{
+	loadimage(&whiteChessImg, L"scr/white.jpg");
+	loadimage(&blackChessImg, L"scr/black.jpg");
+	//loadimage(&winImg, L"scr/win.jpg");
+	//loadimage(&loseImg, L"scr/lose.jpg");
+	loadimage(&boardImg, L"scr/board.jpg");
+}
+
+static void printBoard(array<array<int, gradeSize >, gradeSize> board)
+{
+	for (int i = 0; i < gradeSize; i++)
+	{
+		for (int j = 0; j < gradeSize; j++)
+		{
+			if (board[i][j] == 1)
+			{
+				putimage(50 + i * 50, 50 + j * 50, &whiteChessImg);
+			}
+			else if (board[i][j] == 2)
+			{
+				putimage(50 + i * 50, 50 + j * 50, &blackChessImg);
+			}
+		}
+	}
+}
 
 int main()
 {
-	Chess chess(gradeSize, marginX, marginY, chessSize);
-	Man man;
-	AI ai;
+	// 加载资源文件
+	initResource();
 
-	shared_ptr<ChessGame> game(new ChessGame(&man, &ai, chess));
-	game->play();
+	// 游戏开始
+	initgraph(boardImg.getwidth(), boardImg.getheight(), EX_NOCLOSE);
+	BeginBatchDraw();
+
+	while (true)
+	{
+		putimage(0, 0, &boardImg);
+
+		FlushBatchDraw();
+
+		if (peekmessage(&ex, EX_MOUSE | EX_KEY))
+		{
+			if (ex.vkcode == 'Q')
+			{
+				break;//结束游戏
+			}
+		}
+	}
 
 	return 0;
 }
