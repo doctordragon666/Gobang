@@ -3,7 +3,7 @@
 class Player
 {
 public:
-	virtual void go(BOARD& board) = 0;
+	virtual void go(BOARD& board, int& x, int& y) = 0;
 	int m_flag;
 	void setflag(int flag) {
 		m_flag = flag;
@@ -13,16 +13,19 @@ public:
 class Man : public Player
 {
 public:
-	void go(BOARD& board) override {
+	void go(BOARD& board, int& x, int& y)override {
 		int posX = -1, posY = -1;
-		getPos(posX, posY);
-		if (posX == -1 && posY == -1) return;
-		int x = rand() % gradeSize;
-		int y = rand() % gradeSize;
-		if (!board[x][y])
-			board[x][y] = m_flag;
-		else
-			go(board);
+		while (true)
+		{
+			getPos(posX, posY);
+			if (posX == -1 && posY == -1) break;
+			parsePos(x, y, posX, posY);
+			if (x < board.size() && y < board.size() && x>0 && y > 0 && !board[x][y])
+			{
+				board[x][y] = m_flag;
+				break;
+			}
+		}
 	}
 };
 
@@ -30,16 +33,19 @@ class AI :public Player
 {
 public:
 	//void init(Chess* chess);
-	void go(BOARD& board) {
+	void go(BOARD& board, int& x, int& y)override {
 		int posX = -1, posY = -1;
-		getPos(posX, posY);
-		if (posX == -1 && posY == -1) return;
-		int x = rand() % gradeSize;
-		int y = rand() % gradeSize;
-		if (!board[x][y])
-			board[x][y] = m_flag;
-		else
-			go(board);
+		while (true)
+		{
+			getPos(posX, posY);
+			if (posX == -1 && posY == -1) break;
+			parsePos(x, y, posX, posY);
+			if (x < board.size() && y < board.size() && x>0 && y > 0 && !board[x][y])
+			{
+				board[x][y] = m_flag;
+				break;
+			}
+		}
 	}
 private:
 	//Chess* chess;

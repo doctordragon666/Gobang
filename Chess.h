@@ -5,21 +5,7 @@
 //#include <numeric>
 //#include <functional>
 //using namespace std;
-//
-//struct ChessPos
-//{
-//	int row;
-//	int col;
-//
-//	ChessPos(int r = 0, int c = 0) :row(r), col(c) {}
-//};
-//
-//enum class chess_kind_t {
-//	CHESS_WHITE = -1,
-//	CHESS_BLACK = 1,
-//	CHESS_NONE = 0
-//};
-//
+
 //class Chess
 //{
 //public:
@@ -31,9 +17,6 @@
 //	void chessDown(ChessPos* pos);//落子
 //	int getGradeSize();//获取棋盘大小
 //
-//	//获取棋盘数据
-//	int getChessData(ChessPos* pos);
-//	int getChessData(int row, int col);
 //
 //	bool checkOver();//检查棋盘结束
 //
@@ -41,7 +24,6 @@
 //	bool checkChess(ChessPos* pos);
 //	bool checkChess(int row, int col);
 //
-//	void putimagePNG(int x, int y, IMAGE* picture);//自定义贴图接口
 //
 //	//重置棋盘，并将棋盘的结果保存
 //	void reset();

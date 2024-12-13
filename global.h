@@ -10,6 +10,8 @@ const int gradeSize = 13;
 const int marginX = 33;
 const int marginY = 30;
 const int margin = 2;
+int chessSize = 0;
+const int debug = 0;
 bool exist = false;
 ExMessage ex;//游戏循环消息
 
@@ -87,9 +89,22 @@ void getPos(int& x, int& y)
 			{
 				exist = true;
 				x = -1;
-				x = -1;
+				y = -1;
 				break;
 			}
 		}
 	}
+}
+
+void parsePos(int& x, int& y, int posX, int posY)
+{
+	if (posX == -1 && posY == -1) {
+		x = -1;
+		y = -1;
+		return;
+	}
+
+	// TODO: 提升点击的精度
+	x = floor((posY - marginY) / ((chessSize + margin) * 0.9));
+	y = floor((posX - marginX) / ((chessSize + margin) * 0.9));
 }
