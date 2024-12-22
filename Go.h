@@ -22,8 +22,8 @@ public:
 		else
 			player2->go(board, lastposX, lastposY);
 		if (lastposX == -1 && lastposY == -1 && !checkPos(lastposX, lastposY)) return;
+		if (debug)printf("the %d choice: x=%d,y=%d,type=%d\n", play_times, lastposX, lastposY, board[lastposX][lastposY]);
 		play_times++;
-		if (debug)printf("x=%d,y=%d,type=%d\n", lastposX, lastposY, board[lastposX][lastposY]);
 	}
 	bool checkrow()
 	{
@@ -35,11 +35,10 @@ public:
 			if (board[left][lastposY] == type)
 			{
 				if (start == -1) start = left;
+				else if (left - start == 4) return true;
 			}
 			else
 			{
-				if (debug) printf("%d\t", left - start);
-				if (start != -1 && left - start == 5) return true;
 				start = -1;
 			}
 		}
@@ -55,11 +54,10 @@ public:
 			if (board[lastposX][left] == type)
 			{
 				if (start == -1) start = left;
+				else if (left - start == 4) return true;
 			}
 			else
 			{
-				if (debug)printf("%d\t", left - start);
-				if (start != -1 && left - start == 5) return true;
 				start = -1;
 			}
 		}
@@ -77,11 +75,10 @@ public:
 			if (board[leftX][rightY] == type)
 			{
 				if (start == -1) start = leftX;
+				else if (leftX - start == 4) return true;
 			}
 			else
 			{
-				if (debug)printf("%d\t", leftX - start);
-				if (start != -1 && leftX - start == 5) return true;
 				start = -1;
 			}
 		}
@@ -99,11 +96,10 @@ public:
 			if (board[leftX][leftY] == type)
 			{
 				if (start == -1) start = leftX;
+				if (leftX - start == 4) return true;
 			}
 			else
 			{
-				if (debug)printf("%d\t", leftX - start);
-				if (start != -1 && leftX - start == 5) return true;
 				start = -1;
 			}
 		}
@@ -111,63 +107,7 @@ public:
 	}
 	bool isover()
 	{
-		//落子点的水平方向
-		for (int i = 0; i < 5; i++)
-		{
-			if (lastposY - i >= 0 &&
-				lastposY - i + 4 < gradeSize &&
-				board[lastposX][lastposY - i] == board[lastposX][lastposY - i + 1] &&
-				board[lastposX][lastposY - i] == board[lastposX][lastposY - i + 2] &&
-				board[lastposX][lastposY - i] == board[lastposX][lastposY - i + 3] &&
-				board[lastposX][lastposY - i] == board[lastposX][lastposY - i + 4])
-			{
-				return true;
-			}
-		}
-
-		//垂直方向
-		for (int i = 0; i < 5; i++)
-		{
-			if (lastposX - i >= 0 &&
-				lastposX - i + 4 < gradeSize &&
-				board[lastposX - i][lastposY] == board[lastposX - i + 1][lastposY] &&
-				board[lastposX - i][lastposY] == board[lastposX - i + 2][lastposY] &&
-				board[lastposX - i][lastposY] == board[lastposX - i + 3][lastposY] &&
-				board[lastposX - i][lastposY] == board[lastposX - i + 4][lastposY])
-			{
-				return true;
-			}
-		}
-
-		//"/"方向
-		for (int i = 0; i < 5; i++)
-		{
-			if (lastposX + i - 4 >= 0 && lastposX + i < gradeSize &&
-				lastposY - i >= 0 && lastposY - i + 4 < gradeSize &&
-				board[lastposX + i][lastposY - i] == board[lastposX + i - 1][lastposY - i + 1] &&
-				board[lastposX + i][lastposY - i] == board[lastposX + i - 2][lastposY - i + 2] &&
-				board[lastposX + i][lastposY - i] == board[lastposX + i - 3][lastposY - i + 3] &&
-				board[lastposX + i][lastposY - i] == board[lastposX + i - 4][lastposY - i + 4])
-			{
-				return true;
-			}
-		}
-
-		//”\“方向
-		for (int i = 0; i < 5; i++)
-		{
-			if (lastposX - i >= 0 && lastposX - i + 4 < gradeSize &&
-				lastposY - i >= 0 && lastposY - i + 4 < gradeSize &&
-				board[lastposX - i][lastposY - i] == board[lastposX - i + 1][lastposY - i + 1] &&
-				board[lastposX - i][lastposY - i] == board[lastposX - i + 2][lastposY - i + 2] &&
-				board[lastposX - i][lastposY - i] == board[lastposX - i + 3][lastposY - i + 3] &&
-				board[lastposX - i][lastposY - i] == board[lastposX - i + 4][lastposY - i + 4])
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return checkrow() || checkcol() || checkescape() || checkslash();
 	}
 	int getvictory() const
 	{

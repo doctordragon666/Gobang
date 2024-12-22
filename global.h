@@ -108,10 +108,6 @@ void parsePos(int& x, int& y, int posX, int posY)
 		y = -1;
 		return;
 	}
-
-	// TODO: 提升点击的精度，当前最优方案
-	//x = floor((posY - marginY) / ((chessSize + margin) * 0.9));
-	//y = floor((posX - marginX) / ((chessSize + margin) * 0.9));
 	if (posY <= marginY || posX <= marginX)
 	{
 		x = 0, y = 0;
@@ -128,12 +124,8 @@ inline bool checkPos(int x, int y)
 
 int cal(BOARD board, int depth, int x, int y, int type)
 {
-	//启用搜索算法，现在这里下，然后
-	//callleft()
 	/*
-	*callleft
-	* callrigh
-	*
+	* 启发式搜索算法，还没有做好，后面再改。
 	*/
 	if (depth == 5 || !checkPos(x, y))
 	{

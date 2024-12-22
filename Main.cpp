@@ -30,8 +30,8 @@ void printBoard(BOARD board)
 			{
 				continue;
 			}
-			int x = marginX + chessSize * j - 0.5 * chessSize + margin * j;
-			int y = marginY + chessSize * i - 0.5 * chessSize + margin * i;
+			int x = static_cast<int>(marginX + chessSize * j - 0.5 * chessSize + margin * j);
+			int y = static_cast<int>(marginY + chessSize * i - 0.5 * chessSize + margin * i);
 			if (board[i][j] == 1)
 			{
 				putimagePNG(x, y, &whiteChessImg);
@@ -72,18 +72,18 @@ int main()
 
 	BeginBatchDraw();
 	Go go;
-	Man man;
-	//Man man1, man2;
+	//Man man;
+	Man man1, man2;
 	//AI ai, man2;
 
 	AI ai;
-	go.setplay1(&man);
-	go.setplay2(&ai);
+	//go.setplay1(&man);
+	//go.setplay2(&ai);
 
 	// 设置为双人对战，注释下面两行解开上面的注释，开启人机对战。
 	//go.setplay1(&ai);
-	//go.setplay1(&man1);
-	//go.setplay2(&man2);
+	go.setplay1(&man1);
+	go.setplay2(&man2);
 
 	// 人机调试
 
@@ -94,40 +94,20 @@ int main()
 		FlushBatchDraw();
 		go.move();
 
-		if (go.isover()) {
-			if (debug)
-			{
-				FILE* file;
-				int r = fopen_s(&file, "result.txt", "w");
-				//for (auto i : ai.scoreMap)
-				//{
-				//	for (auto j : i)
-				//	{
-				//		fprintf(file, "%d ", j);
-				//	}
-				//	fprintf(file, "\n");
-				//}
-				for (auto i : go.get_board())
-				{
-					for (auto j : i)
-					{
-						fprintf(file, "%d ", j);
-					}
-					fprintf(file, "\n");
-				}
-				fclose(file);
-			}
+		if (!exist && go.isover()) {
+			exist = true;//暂时停止记录按键消息
 			printBoard(go.get_board());
 			FlushBatchDraw();
-			Sleep(5000);
+			Sleep(1000);
 
 			printVictory(go.getvictory());
 			FlushBatchDraw();
 			go.clear();
 
 			Sleep(3000);
-			cleardevice();
+			exist = false;
 		}
+		cleardevice();
 	}
 
 	go.clear();

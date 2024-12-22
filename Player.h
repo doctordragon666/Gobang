@@ -23,6 +23,7 @@ public:
 			if (checkPos(x, y) && !board[x][y])
 			{
 				board[x][y] = m_flag;
+				flushmessage();
 				break;
 			}
 		}
