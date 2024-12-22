@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <array>
 #include <stdlib.h>
+#include <vector>
 #include <algorithm>
 
 const int gradeSize = 13;
@@ -75,6 +76,10 @@ void putimagePNG(int x, int y, IMAGE* picture) //x为载入图片的X坐标，y�
 
 void getPos(int& x, int& y)
 {
+	if (exist) {
+		flushmessage();
+		return;
+	}
 	while (true)
 	{
 		if (peekmessage(&ex, EX_MOUSE))
@@ -104,7 +109,49 @@ void parsePos(int& x, int& y, int posX, int posY)
 		return;
 	}
 
-	// TODO: 提升点击的精度
-	x = floor((posY - marginY) / ((chessSize + margin) * 0.9));
-	y = floor((posX - marginX) / ((chessSize + margin) * 0.9));
+	// TODO: 提升点击的精度，当前最优方案
+	//x = floor((posY - marginY) / ((chessSize + margin) * 0.9));
+	//y = floor((posX - marginX) / ((chessSize + margin) * 0.9));
+	if (posY <= marginY || posX <= marginX)
+	{
+		x = 0, y = 0;
+		return;
+	}
+	x = int(floor((posY - marginY + chessSize * 0.5) / (chessSize + margin)));
+	y = int(floor((posX - marginX + chessSize * 0.5) / (chessSize + margin)));
+}
+
+inline bool checkPos(int x, int y)
+{
+	return x < gradeSize && y < gradeSize && x >= 0 && y >= 0;
+}
+
+int cal(BOARD board, int depth, int x, int y, int type)
+{
+	//启用搜索算法，现在这里下，然后
+	//callleft()
+	/*
+	*callleft
+	* callrigh
+	*
+	*/
+	if (depth == 5 || !checkPos(x, y))
+	{
+		return 0;
+	}
+	else
+	{
+		if (board[x][y] == type)
+		{
+			return cal(board, depth + 1, x + 1, y, type) + 1000;
+		}
+		else if (board[x][y] == 0)
+		{
+			return -100 + cal(board, depth + 1, x + 1, y, type);
+		}
+		else
+		{
+			return -10000;//如果不是自己的棋子，直接返回负数
+		}
+	}
 }

@@ -2,11 +2,14 @@
 #include "Go.h"
 #include "Player.h"
 #include <array>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 IMAGE whiteChessImg;
 IMAGE blackChessImg;
 IMAGE boardImg;
 IMAGE victoryImg;
+IMAGE failureImg;
 
 static void initResource()
 {
@@ -14,10 +17,10 @@ static void initResource()
 	loadimage(&blackChessImg, L"res/black.png");
 	loadimage(&boardImg, L"res/board.jpg");
 	loadimage(&victoryImg, L"res/v.jpg", boardImg.getwidth(), boardImg.getheight(), true);
+	loadimage(&failureImg, L"res/f.jpg", boardImg.getwidth(), boardImg.getheight(), true);
 	chessSize = whiteChessImg.getwidth();
 }
-
-static void printBoard(BOARD board)
+void printBoard(BOARD board)
 {
 	for (int i = 0; i < gradeSize; i++)
 	{
@@ -44,16 +47,18 @@ static void printBoard(BOARD board)
 static void printVictory(int playerorder) {
 	if (playerorder == 1)
 	{
+		mciSendString(L"play res/胜利.mp3", 0, 0, 0);
 		putimage(0, 0, &victoryImg);
 	}
 	else if (playerorder == 2)
 	{
-		putimage(0, 0, &victoryImg);
+		mciSendString(L"play res/失败.mp3", 0, 0, 0);
+		putimage(0, 0, &failureImg);
 	}
 	else
 	{
 		//没有胜利者,棋盘已经满了
-		putimage(0, 0, &victoryImg);
+		putimage(0, 0, &failureImg);
 	}
 }
 
@@ -62,18 +67,25 @@ int main()
 	// 加载资源文件
 	initResource();
 	// 游戏开始
-	initgraph(boardImg.getwidth(), boardImg.getheight(), EX_NOCLOSE);
+	int flag = debug ? EX_SHOWCONSOLE : EX_NOCLOSE;
+	initgraph(boardImg.getwidth(), boardImg.getheight(), flag);
+
 	BeginBatchDraw();
 	Go go;
-	//Man man;
-	Man man1, man2;
-	//AI ai;
-	//go.setplay1(&man);
-	//go.setplay2(&ai);
+	Man man;
+	//Man man1, man2;
+	//AI ai, man2;
+
+	AI ai;
+	go.setplay1(&man);
+	go.setplay2(&ai);
 
 	// 设置为双人对战，注释下面两行解开上面的注释，开启人机对战。
-	go.setplay1(&man1);
-	go.setplay2(&man2);
+	//go.setplay1(&ai);
+	//go.setplay1(&man1);
+	//go.setplay2(&man2);
+
+	// 人机调试
 
 	while (!exist)
 	{
@@ -87,6 +99,14 @@ int main()
 			{
 				FILE* file;
 				int r = fopen_s(&file, "result.txt", "w");
+				//for (auto i : ai.scoreMap)
+				//{
+				//	for (auto j : i)
+				//	{
+				//		fprintf(file, "%d ", j);
+				//	}
+				//	fprintf(file, "\n");
+				//}
 				for (auto i : go.get_board())
 				{
 					for (auto j : i)
@@ -99,13 +119,14 @@ int main()
 			}
 			printBoard(go.get_board());
 			FlushBatchDraw();
-			Sleep(1000);
+			Sleep(5000);
+
 			printVictory(go.getvictory());
 			FlushBatchDraw();
-			Sleep(3000);
-
-			cleardevice();
 			go.clear();
+
+			Sleep(3000);
+			cleardevice();
 		}
 	}
 
