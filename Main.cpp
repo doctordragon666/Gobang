@@ -72,18 +72,18 @@ int main()
 
 	BeginBatchDraw();
 	Go go;
-	//Man man;
-	Man man1, man2;
+	Man man;
+	//Man man1, man2;
 	//AI ai, man2;
 
 	AI ai;
-	//go.setplay1(&man);
-	//go.setplay2(&ai);
+	go.setplay1(&man);
+	go.setplay2(&ai);
 
 	// 设置为双人对战，注释下面两行解开上面的注释，开启人机对战。
 	//go.setplay1(&ai);
-	go.setplay1(&man1);
-	go.setplay2(&man2);
+	//go.setplay1(&man1);
+	//go.setplay2(&man2);
 
 	// 人机调试
 
